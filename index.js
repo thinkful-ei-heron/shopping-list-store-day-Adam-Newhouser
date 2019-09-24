@@ -1,9 +1,9 @@
 const store = {
   items: [
-    { id: cuid(), name: 'apples', checked: false },
-    { id: cuid(), name: 'oranges', checked: false },
-    { id: cuid(), name: 'milk', checked: true },
-    { id: cuid(), name: 'bread', checked: false }
+    { id: cuid(), name: 'apples', checked: false, canEdit: false},
+    { id: cuid(), name: 'oranges', checked: false, canEdit: false},
+    { id: cuid(), name: 'milk', checked: true, canEdit: false},
+    { id: cuid(), name: 'bread', checked: false, canEdit: false}
   ],
   hideCheckedItems: false
 };
@@ -15,13 +15,30 @@ const generateItemElement = function (item) {
      <span class='shopping-item'>${item.name}</span>
     `;
   }
-
+  
+  if (item.canEdit) {
+    $('.shopping-item-controls').html(`
+      <form id='js-edit-form'>
+        <input type='text' id='name' class='js-update-name shopping-item' value='${item.name}'>
+        <div class='shopping-item-controls'>
+        <button class='shopping-item-form-cancel js-item-form-cancel'>
+          <span class='button-label'>cancel</span>
+        </button>
+        <button class='shopping-item-edit js-item-edit'>
+          <span class='button-label'>save</span>
+        </button>
+      </div>
+    </li>`;
+  }
   return `
     <li class='js-item-element' data-item-id='${item.id}'>
       ${itemTitle}
       <div class='shopping-item-controls'>
         <button class='shopping-item-toggle js-item-toggle'>
           <span class='button-label'>check</span>
+        </button>
+        <button class='shopping-item-edit js-item-edit'>
+          <span class='button-label'>edit</span>
         </button>
         <button class='shopping-item-delete js-item-delete'>
           <span class='button-label'>delete</span>
@@ -61,6 +78,19 @@ const render = function () {
   // insert that HTML into the DOM
   $('.js-shopping-list').html(shoppingListItemsString);
 };
+
+const toggleCanEditForListItem = function (id) {
+  const checkCanEdit = store.items.findIndex(item => item.id === id);
+  checkCanEdit.canEdit = !checkCanEdit.canEdit;
+}
+
+const handleEditItemClicked = function () {
+  $('.js-shopping-list').on('click', '.js-item-edit', event => {
+  const id = getItemIdFromElement(event.currentTarget);
+  toggleCanEditForListItem(id);
+  render();
+  })
+}
 
 const addItemToShoppingList = function (itemName) {
   store.items.push({ id: cuid(), name: itemName, checked: false });
@@ -160,6 +190,7 @@ const handleShoppingList = function () {
   handleItemCheckClicked();
   handleDeleteItemClicked();
   handleToggleFilterClick();
+  handleEditItemClicked();
 };
 
 // when the page loads, call `handleShoppingList`
