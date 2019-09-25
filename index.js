@@ -17,7 +17,8 @@ const generateItemElement = function (item) {
   }
   
   if (item.canEdit) {
-    $('.shopping-item-controls').html(`
+    return `
+      <li class='js-item-element' data-item-id='${item.id}'>
       <form id='js-edit-form'>
         <input type='text' id='name' class='js-update-name shopping-item' value='${item.name}'>
         <div class='shopping-item-controls'>
@@ -30,7 +31,9 @@ const generateItemElement = function (item) {
       </div>
     </li>`;
   }
-  return `
+  
+  else {
+    return `
     <li class='js-item-element' data-item-id='${item.id}'>
       ${itemTitle}
       <div class='shopping-item-controls'>
@@ -45,6 +48,7 @@ const generateItemElement = function (item) {
         </button>
       </div>
     </li>`;
+  }
 };
 
 const generateShoppingItemsString = function (shoppingList) {
@@ -80,17 +84,17 @@ const render = function () {
 };
 
 const toggleCanEditForListItem = function (id) {
-  const checkCanEdit = store.items.findIndex(item => item.id === id);
+  const checkCanEdit = store.items.find(item => item.id === id);
   checkCanEdit.canEdit = !checkCanEdit.canEdit;
 }
 
 const handleEditItemClicked = function () {
   $('.js-shopping-list').on('click', '.js-item-edit', event => {
-  const id = getItemIdFromElement(event.currentTarget);
-  toggleCanEditForListItem(id);
-  render();
-  })
-}
+    const id = getItemIdFromElement(event.currentTarget);
+    toggleCanEditForListItem(id);
+    render();
+  });
+};
 
 const addItemToShoppingList = function (itemName) {
   store.items.push({ id: cuid(), name: itemName, checked: false });
